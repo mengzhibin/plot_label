@@ -17,8 +17,15 @@ def fit_points(x_list,y_list):
     
     return y_list,x_list
 
-def interpolate(y_list,x_list,h):
+def sorted_coords(y_list,x_list):
+    zipped = zip(y_list,x_list)
+    sort_zipped = sorted(zipped,key=lambda x:(x[0]),reverse=True)
+    result = zip(*sort_zipped)
+    y_list,x_list = [list(x) for x in result]
+    return y_list,x_list
 
+def interpolate(y_list,x_list,h):
+    y_list,x_list = sorted_coords(y_list,x_list)
     new_y = []
     new_x = []
     for i in range(len(y_list)):
@@ -32,7 +39,6 @@ def interpolate(y_list,x_list,h):
         li = interp1d(y_list,x_list,kind='cubic')
     else:
         li = interp1d(y_list,x_list)
-
     y_list = np.linspace(y_list[-1],y_list[0], int(y_list[0] - y_list[-1]))
     x_list = li(y_list)
     return y_list,x_list
@@ -71,12 +77,15 @@ import os
 import cv2
 import json
 for idx,f in enumerate(os.listdir(os.path.join(root,'images'))):
+    if idx< 340:
+        continue
+    print(idx,f)
     image_p = os.path.join(root,'images',f)
     json_p = os.path.join(root,'labels',f.replace('.jpg','.lines.json'))
     with open(json_p) as f:
         label = json.load(f)
 
     plot(image_p,label['Lines'])
-    print(idx)
+    # break
     # if idx == 100:
     #     break
